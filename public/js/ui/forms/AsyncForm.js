@@ -6,44 +6,54 @@
  * для последующей обработки
  * */
 class AsyncForm {
-  /**
-   * Если переданный элемент не существует,
-   * необходимо выкинуть ошибку.
-   * Сохраняет переданный элемент и регистрирует события
-   * через registerEvents()
-   * */
-  constructor(element) {
+    /**
+     * Если переданный элемент не существует,
+     * необходимо выкинуть ошибку.
+     * Сохраняет переданный элемент и регистрирует события
+     * через registerEvents()
+     * */
+    constructor(element) {
+        if (!element) throw new Error('Форма отсутствует');
+        this.element = element;
+        this.registerEvents();
+    }
 
-  }
+    /**
+     * Необходимо запретить отправку формы и в момент отправки
+     * вызывает метод submit()
+     * */
+    registerEvents() {
+        this.element.addEventListener('submit', (event) => {
+            event.preventDefault();
+            this.submit();
+        });
+    }
 
-  /**
-   * Необходимо запретить отправку формы и в момент отправки
-   * вызывает метод submit()
-   * */
-  registerEvents() {
+    /**
+     * Преобразует данные формы в объект вида
+     * {
+     *  'название поля формы 1': 'значение поля формы 1',
+     *  'название поля формы 2': 'значение поля формы 2'
+     * }
+     * */
+    getData() {
+        let output = {};
+        Array.from(this.element.querySelectorAll('.form-control')).forEach(e => {
+            output[e.name] = e.value;
+        });
+        return output;
 
-  }
+    }
 
-  /**
-   * Преобразует данные формы в объект вида
-   * {
-   *  'название поля формы 1': 'значение поля формы 1',
-   *  'название поля формы 2': 'значение поля формы 2'
-   * }
-   * */
-  getData() {
+    onSubmit(options) {
+        this.onSubmit(this.getData());
+    }
 
-  }
+    /**
+     * Вызывает метод onSubmit и передаёт туда
+     * данные, полученные из метода getData()
+     * */
+    submit() {
 
-  onSubmit(options){
-
-  }
-
-  /**
-   * Вызывает метод onSubmit и передаёт туда
-   * данные, полученные из метода getData()
-   * */
-  submit() {
-
-  }
+    }
 }
