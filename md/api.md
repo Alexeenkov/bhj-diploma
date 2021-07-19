@@ -29,10 +29,14 @@
 // здесь перечислены все возможные параметры для функции
   createRequest({
     url: 'https://example.com', // адрес
+    headers: { // произвольные заголовки, могут отсутствовать
+      'Content-type': 'application/json' 
+    },
     data: { // произвольные данные, могут отсутствовать
       email: 'ivan@poselok.ru',
       password: 'odinodin'
     },
+    responseType: 'json', // формат, в котором необходимо выдать результат
     method: 'GET', // метод запроса
     /*
       Функция, которая сработает после запроса.
@@ -103,14 +107,7 @@ xhr.open( 'POST', 'https://example.com' );
 xhr.send( formData );
 ```
 
-### 3. responseType
-
-Присвойте свойству *responseType* значение `'json'`. В проекте сервер все ответы будет возвращать в формате `'json'`.
-```javascript
-xhr.responseType = 'json'; // формат, в котором необходимо выдать результат
-```
-
-### 4. callback
+### 3. callback
 
 В случае успешного выполнения кода, необходимо вызвать функцию, заданную
 в *callback* и передать туда данные:
@@ -144,16 +141,22 @@ xhr.responseType = 'json'; // формат, в котором необходим
   });
 ```
 
+### 4. withCredentials
+
+У возвращаемого объекта всегда свойство *withCredentials* задано в *true*
+
 ## Entity
 
 Это базовый класс, от которого будут наследоваться классы 
 *Account* и *Transaction*. Необходим для организации взаимодействия между интерфейсом программы и сервером
 через функцию *createRequest*. Если пользователю необходимо получить, изменить или добавить данные, то
-происходит обращение к методам данного класса, которые делают запрос к серверу через функцию *createRequest*.
+происходит обращение к методам данного класса, которые делают запрос к серверу через функцию *createRequest*
+и полученный ответ возвращают пользователю.
 
 Содержит 3 статических метода: *list*, *remove* и *create*.
+Каждый из методов возвращает результат работы функции *createRequest*.
 
-Также *Entity* содержит одно статическое свойство.
+Также *Entity* содержит одно свойства.
 
 ### Свойство URL
 
@@ -183,6 +186,8 @@ Entity.list( data, function( err, response ) {
 
 Метод посылает *GET* запрос на адрес, заданный *URL*.
 Метод запускает выполнение функции *createRequest*.
+Параметр *responseType* в вызываемой внутри функции *createRequest* задан
+как *json*.
 
 ### create
 
@@ -203,6 +208,8 @@ class Entity {
 
 Метод посылает *PUT* запрос на адрес, заданный *URL*.
 Метод запускает выполнение функции *createRequest*.
+Параметр *responseType* в вызываемой внутри функции *createRequest* задан
+как *json*.
 
 ### remove
 
@@ -223,11 +230,12 @@ class Entity {
 
 Метод посылает *DELETE* запрос на адрес, заданный *URL*.
 Метод запускает выполнение функции *createRequest*.
-
+Параметр *responseType* в вызываемой внутри функции *createRequest* задан
+как *json*.
 
 ## Account
 
-Наследует все свойства и методы от *Entity*. Статическое свойство *URL* равно */account*.
+Наследует все свойства и методы от *Entity*. Параметр *URL* равен */account*.
 
 Содержит 1 статический метод: *get*.
 Метод запускает функцию *createRequest*.
@@ -247,17 +255,19 @@ Entity.get( 21, function ( err, response ) {
 
 Метод посылает *GET* запрос на адрес, заданный *URL*. 
 Метод запускает выполнение функции *createRequest*.
+Параметр *responseType* в вызываемой внутри функции *createRequest* задан
+как *json*.
 
 Пример получения определённого счёта: `/account/2`
 
 ## Transaction
 
-Наследует все свойства и методы от *Entity*. Статическое свойство *URL* равно */transaction*
+Наследует все свойства и методы от *Entity*. Параметр *URL* равен */transaction*
 
 ## User
 
 В отличие от *Account* и *Transaction*, __не наследуется__ от *Entity*.
-Статическое свойство *URL* равно */user*.
+Параметр *URL* равен */user*.
 
 ### User.setCurrent
 
@@ -273,7 +283,7 @@ const user = {
 
 User.setCurrent( user );
 
-console.log( localStorage.user ); // строка "{"id":12,"name":"Vlad"}
+console.log( localStorage[ 'user' ]); // строка "{"id":12,"name":"Vlad"}
 ```
 ### User.current
 
@@ -303,12 +313,12 @@ const user = {
 };
 
 User.setCurrent( user );
-let current = User.current();
+const current = User.current();
+
 console.log( current ); // объект { id: 12, name: 'Vlad' }
 
 User.unsetCurrent();
 
-current = User.current();
 console.log( current ); // undefined
 ```
 
@@ -376,6 +386,8 @@ User.fetch(( err, response ) => {
 
 Метод посылает *GET* запрос на адрес, заданный по формату *URL + '/current'*.
 Метод запускает выполнение функции *createRequest*.
+Параметр *responseType* в вызываемой внутри функции *createRequest* задан
+как *json*.
 
 ### User.register
 
@@ -435,6 +447,8 @@ User.register( data, ( err, response ) => {
 
 Метод посылает *POST* запрос на адрес, заданный по формату *URL + '/register'*.
 Метод запускает выполнение функции *createRequest*.
+Параметр *responseType* в вызываемой внутри функции *createRequest* задан
+как *json*.
 
 ### User.login
 
@@ -483,11 +497,13 @@ User.login( data, ( err, response ) => {
 
 Метод посылает *POST* запрос на адрес, заданный по формату *URL + '/login'*.
 Метод запускает выполнение функции *createRequest*.
+Параметр *responseType* в вызываемой внутри функции *createRequest* задан
+как *json*.
 
 ### User.logout
 
 Метод позволяет выйти из системы.
-Метод *logout* принимает 1 аргумент *callback*.
+Метод *logout* принимает 2 аргумента: *data* и *callback*.
 
 В качестве успешного ответа вы получите
 
@@ -499,7 +515,8 @@ User.login( data, ( err, response ) => {
 
 Метод посылает *POST* запрос на адрес, заданный по формату *URL + '/logout'*.
 Метод запускает выполнение функции *createRequest*.
-После успешного выхода необходимо вызвать метод User.unsetCurrent.
+Параметр *responseType* в вызываемой внутри функции *createRequest* задан
+как *json*. После успешного выхода необходимо вызвать метод User.unsetCurrent.
 
 ## Какие ответы ожидать от хоста
 
@@ -545,7 +562,7 @@ const data = {
 
 Метод DELETE - *id* - вернет *success = true*
 
-Метод GET - вернет данные по всем счетам и *success = true*
+Метод GET - *id*, *name* и *email* - вернет данные по всем счетам и *success = true*
 
 Метод GET - *id* - вернет данные по конкретному счету
 
